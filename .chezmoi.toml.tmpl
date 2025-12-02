@@ -1,0 +1,72 @@
+{{/* Boolean feature tags */}}
+{{- $personal := false -}}
+{{- $ephemeral := false -}}
+{{- $devmachine := false -}}
+
+{{/* Personal vs work machine */}}
+{{- $personal = promptBoolOnce . "personal" "Is dit een persoonlijke machine (niet werk)" -}}
+
+{{/* Ephemeral machine (container, VM, etc.) */}}
+{{- $ephemeral = promptBoolOnce . "ephemeral" "Is dit een ephemeral machine (container/VM/tijdelijk)" -}}
+
+{{/* Development machine */}}
+{{- $devmachine = promptBoolOnce . "devmachine" "Is dit een development machine" -}}
+
+{{/* User details */}}
+{{- $name := "Your Name" -}}
+{{- $email := "you@example.com" -}}
+{{- $gpgkey := "" -}}
+
+{{- if not $ephemeral -}}
+{{-   $name = promptStringOnce . "name" "Volledige naam" -}}
+{{-   $email = promptStringOnce . "email" "Email adres" -}}
+{{-   $gpgkey = promptStringOnce . "gpgkey" "GPG key ID (optioneel, laat leeg om over te slaan)" -}}
+{{- end -}}
+
+{{/* Detect OS ID */}}
+{{- $osid := .chezmoi.os -}}
+{{- if hasKey .chezmoi.osRelease "id" -}}
+{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+
+[data]
+    name = {{ $name | quote }}
+    email = {{ $email | quote }}
+    gpgkey = {{ $gpgkey | quote }}
+    personal = {{ $personal }}
+    ephemeral = {{ $ephemeral }}
+    devmachine = {{ $devmachine }}
+    osid = {{ $osid | quote }}
+
+{{- if not $ephemeral }}
+# Age encryption configuration
+encryption = "age"
+[age]
+    # Age identity (private key) location
+    identity = "~/.config/chezmoi/key.txt"
+    # Age recipients (public keys) - add team member keys here
+    recipients = [
+        # Example: "age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p",
+        # Add more team member public keys as needed
+    ]
+{{- end }}
+
+# Git settings for chezmoi
+[git]
+    autoCommit = false
+    autoPush = false
+
+# Diff settings
+[diff]
+    pager = "delta"
+
+# Edit settings
+[edit]
+    command = "nvim"
+
+{{- if eq .chezmoi.os "windows" }}
+# Windows-specific interpreter settings
+[interpreters.ps1]
+    command = "pwsh"
+    args = ["-NoLogo", "-NoProfile"]
+{{- end }}

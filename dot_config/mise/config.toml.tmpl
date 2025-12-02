@@ -1,0 +1,55 @@
+# Mise global configuration - managed by chezmoi
+# ~/.config/mise/config.toml
+
+[settings]
+# Experimental features
+experimental = false
+
+# Verbose output
+verbose = false
+
+# Automatically install missing tools
+yes = false
+
+# Trusted config paths
+trusted_config_paths = [
+    "~/work",
+    "~/projects",
+{{ if .personal }}
+    "~/personal",
+{{ end }}
+]
+
+# Global tools
+[tools]
+# Node.js LTS
+node = "lts"
+
+# Python 3
+python = "3.12"
+
+{{ if .devmachine }}
+# Development tools
+terraform = "latest"
+kubectl = "latest"
+helm = "latest"
+go = "latest"
+rust = "stable"
+{{ end }}
+
+# Global environment variables
+[env]
+# Mise configuration
+MISE_EXPERIMENTAL = "0"
+MISE_LOG_LEVEL = "info"
+
+{{ if .devmachine }}
+# Development environment
+COMPOSE_DOCKER_CLI_BUILD = "1"
+DOCKER_BUILDKIT = "1"
+{{ end }}
+
+# Task configuration
+[tasks]
+# Example task
+hello = "echo 'Hello from mise!'"

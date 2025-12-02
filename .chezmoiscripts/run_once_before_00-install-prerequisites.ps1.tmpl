@@ -1,0 +1,41 @@
+{{- if eq .chezmoi.os "windows" -}}
+# run_once_before_00-install-prerequisites.ps1.tmpl
+
+$ErrorActionPreference = "Stop"
+
+Write-Host "==> Installing prerequisites for Windows" -ForegroundColor Green
+
+# Check if winget is available
+if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Host "winget is not installed. Please install App Installer from the Microsoft Store" -ForegroundColor Red
+    exit 1
+}
+
+$packages = @(
+    "Git.Git",
+    "Neovim.Neovim",
+    "BurntSushi.ripgrep.MSVC",
+    "sharkdp.fd",
+    "sharkdp.bat",
+    "dandavison.delta",
+    "junegunn.fzf",
+    "jqlang.jq",
+    "Starship.Starship",
+    "FiloSottile.age",
+    "eza-community.eza"
+)
+
+foreach ($package in $packages) {
+    Write-Host "Installing $package..." -ForegroundColor Yellow
+    try {
+        winget install --id $package -e --source winget --accept-package-agreements --accept-source-agreements --silent
+    } catch {
+        Write-Host "Warning: Failed to install $package" -ForegroundColor Yellow
+    }
+}
+
+# Refresh PATH
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+Write-Host "==> Prerequisites installation complete!" -ForegroundColor Green
+{{- end }}

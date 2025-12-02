@@ -1,0 +1,35 @@
+{{- if eq .chezmoi.os "windows" -}}
+# run_once_before_01-install-mise.ps1.tmpl
+
+$ErrorActionPreference = "Stop"
+
+if (Get-Command mise -ErrorAction SilentlyContinue) {
+    Write-Host "mise is already installed" -ForegroundColor Green
+    mise --version
+    exit 0
+}
+
+Write-Host "Installing mise..." -ForegroundColor Yellow
+
+# Install via the official installer
+Invoke-RestMethod https://mise.run | Invoke-Expression
+
+# Refresh PATH
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+# Verify installation
+if (Get-Command mise -ErrorAction SilentlyContinue) {
+    Write-Host "mise installed successfully!" -ForegroundColor Green
+    mise --version
+    
+    # Install global tools from mise config
+    $miseConfig = "$env:USERPROFILE\.config\mise\config.toml"
+    if (Test-Path $miseConfig) {
+        Write-Host "Installing global tools from config..." -ForegroundColor Yellow
+        mise install
+    }
+} else {
+    Write-Host "Failed to install mise" -ForegroundColor Red
+    exit 1
+}
+{{- end }}
