@@ -63,12 +63,17 @@ sudo pacman -Syu --noconfirm --needed \
     fzf \
     jq \
     htop
-sudo pacman -S --needed base-devel  \
-    && rm -rf /tmp/paru \
-    && git clone https://aur.archlinux.org/paru.git /tmp/paru \
-    && cd /tmp/paru \
-    && makepkg -si --noconfirm \
-    && rm -rf /tmp/paru 
+#sudo pacman -S --needed base-devel  \
+#    && rm -rf /tmp/paru \
+#    && git clone https://aur.archlinux.org/paru.git /tmp/paru \
+#    && cd /tmp/paru \
+#    && makepkg -si --noconfirm \
+#    && rm -rf /tmp/paru 
+sudo pacman -Syu --needed base-devel git \
+    && rm -rf /tmp/yay \
+    && git clone https://aur.archlinux.org/yay.git /tmp/yay \
+    && cd /tmp/yay \
+    && makepkg -si --noconfirm
 
 {{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
 # Debian/Ubuntu
