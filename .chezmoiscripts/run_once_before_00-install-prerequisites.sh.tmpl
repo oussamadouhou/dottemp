@@ -63,6 +63,11 @@ sudo pacman -Syu --noconfirm --needed \
     fzf \
     jq \
     htop
+sudo pacman -S --needed base-devel  \
+    && git clone https://aur.archlinux.org/paru.git /tmp/paru \
+    && cd /tmp/paru \
+    && makepkg -si \
+    && rm -rf /tmp/paru 
 
 {{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
 # Debian/Ubuntu
