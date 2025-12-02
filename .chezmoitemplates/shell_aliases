@@ -1,0 +1,61 @@
+# Navigation aliases
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+
+# List aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+{{- if eq .chezmoi.os "darwin" }}
+alias ls='ls -G'
+{{- else if ne .chezmoi.os "windows" }}
+alias ls='ls --color=auto'
+{{- end }}
+
+# Git aliases
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+alias gco='git checkout'
+alias gb='git branch'
+alias gd='git diff'
+alias glog='git log --oneline --graph --decorate'
+
+# Chezmoi aliases
+alias cz='chezmoi'
+alias cza='chezmoi apply'
+alias czd='chezmoi diff'
+alias cze='chezmoi edit'
+alias czu='chezmoi update'
+alias czcd='chezmoi cd'
+
+# Mise aliases
+alias m='mise'
+alias mx='mise exec --'
+alias mi='mise install'
+alias mu='mise use'
+alias ml='mise ls'
+
+{{- if .devmachine }}
+# Development aliases
+alias k='kubectl'
+alias d='docker'
+alias dc='docker compose'
+alias tf='terraform'
+{{- end }}
+
+# Safety aliases
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Grep with color
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'

@@ -1,0 +1,73 @@
+#
+# ~/.bashrc
+#
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+. $HOME/.config/chezmoi/env
+export SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock
+{{- if eq .chezmoi.osRelease.id "arch" }}
+
+# Arch aliases
+alias update='paru -Syu'
+alias install='paru -S'
+alias installn='paru -S --needed --noconfirm'
+alias remove='paru -Rns'
+alias search='paru -Ss'
+alias cleanup='paru -Sc && paru -Rns $(paru -Qtdq)'
+alias devpod=devpod-cli
+{{- else if or (eq .chezmoi.osRelease.id "debian") (eq .chezmoi.osRelease.id "ubuntu") }}
+
+# Debian/Ubuntu aliases
+alias update='sudo apt update && sudo apt upgrade'
+alias install='sudo apt install'
+alias remove='sudo apt remove'
+alias search='apt search'
+alias cleanup='sudo apt autoremove && sudo apt autoclean'
+{{- end }}
+
+#[alias]
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias cat=bat
+alias la='ls -la --color=auto'
+
+alias yay=paru
+alias p='paru -S'
+alias pu='paru -Syu'
+
+alias c=chezmoi
+alias v=nvim
+alias vim=nvim
+alias vi=nvim
+alias vf="fzf --bind 'enter:become(nvim {})'"
+
+#[eval]
+eval "$(starship init bash --print-full-init)"
+eval "$(fzf --bash)"
+
+#[source]
+source /usr/share/fzf/completion.bash
+source /usr/share/fzf/key-bindings.bash
+SSH_ENV="$HOME/.ssh/agent-environment"
+
+agent_load_env() {
+    test -f "$SSH_ENV" && . "$SSH_ENV" >| /dev/null
+}
+
+agent_start() {
+    (umask 077; ssh-agent >| "$SSH_ENV")
+    . "$SSH_ENV" >| /dev/null
+    ssh-add ~/.ssh/odouhou 2>/dev/null
+}
+
+agent_load_env
+
+# Controleer of agent draait en bereikbaar is
+if ! pgrep -u "$USER" ssh-agent >/dev/null; then
+    agent_start
+elif [ -z "$SSH_AUTH_SOCK" ] || ! ssh-add -l >/dev/null 2>&1; then
+    agent_start
+fi
+
+export PATH="$HOME/.local/bin:$PATH"

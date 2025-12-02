@@ -1,0 +1,59 @@
+# README and documentation
+README.md
+LICENSE
+*.md
+docs/
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# Editor files
+.vscode/
+.idea/
+
+{{- if eq .chezmoi.os "windows" }}
+# Ignore Unix-specific files on Windows
+.bashrc
+.bash_profile
+.zshrc
+.zprofile
+.config/
+.local/
+{{- end }}
+
+{{- if ne .chezmoi.os "windows" }}
+# Ignore Windows-specific files on Unix
+AppData/
+Documents/PowerShell/
+Documents/WindowsPowerShell/
+{{- end }}
+
+{{- if ne .chezmoi.os "darwin" }}
+# Ignore macOS-specific files
+Library/
+.config/macos/
+{{- end }}
+
+{{- if eq .chezmoi.os "darwin" }}
+# Ignore Linux-specific files on macOS
+.config/systemd/
+{{- end }}
+
+{{- if ne .osid "linux-arch" }}
+# Ignore Arch-specific configs
+.config/arch/
+{{- end }}
+
+{{- if and (ne .osid "linux-debian") (ne .osid "linux-ubuntu") }}
+# Ignore Debian/Ubuntu-specific configs
+.config/debian/
+{{- end }}
+
+{{- if .ephemeral }}
+# Don't sync these on ephemeral machines
+.ssh/
+.gnupg/
+encrypted_*
+{{- end }}

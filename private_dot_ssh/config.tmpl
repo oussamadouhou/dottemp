@@ -1,0 +1,43 @@
+# SSH configuration - managed by chezmoi
+# ~/.ssh/config
+
+# Global defaults
+Host *
+    AddKeysToAgent yes
+{{ if eq .chezmoi.os "darwin" }}
+    UseKeychain yes
+{{ end }}
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    IdentityFile ~/.ssh/id_ed25519
+
+# GitHub
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    PreferredAuthentications publickey
+
+# GitLab
+Host gitlab.com
+    HostName gitlab.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    PreferredAuthentications publickey
+
+{{ if not .personal }}
+# Work servers (example configuration)
+Host work-*
+    User {{ .email | regexFind "^[^@]+" }}
+    IdentityFile ~/.ssh/id_ed25519_work
+    
+Host work-jump
+    HostName jump.company.com
+    Port 22
+    
+Host work-prod-*
+    ProxyJump work-jump
+{{ end }}
+
+# Local customizations (not tracked by chezmoi)
+Include ~/.ssh/config.local
