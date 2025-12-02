@@ -66,7 +66,6 @@ sudo pacman -Syu --noconfirm --needed \
 sudo pacman -Syu --needed base-devel git \
     && rm -rf /tmp/aur \
     && git clone https://aur.archlinux.org/paru.git /tmp/aur \
-#    && git clone https://aur.archlinux.org/yay.git /tmp/aur \
     && cd /tmp/aur \
     && makepkg -si --noconfirm
 
