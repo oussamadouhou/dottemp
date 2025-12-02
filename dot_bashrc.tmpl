@@ -9,7 +9,6 @@ export SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock
 {{- if eq .chezmoi.osRelease.id "arch" }}
 
 # Arch aliases
-alias paru=yay
 alias update='paru -Syu'
 alias install='paru -S'
 alias installn='paru -S --needed --noconfirm'
