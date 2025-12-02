@@ -1,75 +1,73 @@
-{{- if ne .chezmoi.os "windows" -}}
-# ~/.bashrc - Bash configuration managed by chezmoi
-
+#
+# ~/.bashrc
+#
 # If not running interactively, don't do anything
-case $- in
-    *i*) ;;
-      *) return;;
-esac
+[[ $- != *i* ]] && return
 
-# History configuration
-HISTCONTROL=ignoreboth
-HISTSIZE=10000
-HISTFILESIZE=20000
-shopt -s histappend
+. $HOME/.config/chezmoi/env
+export SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock
+{{- if eq .chezmoi.osRelease.id "arch" }}
 
-# Check window size after each command
-shopt -s checkwinsize
+# Arch aliases
+alias update='paru -Syu'
+alias install='paru -S'
+alias installn='paru -S --needed --noconfirm'
+alias remove='paru -Rns'
+alias search='paru -Ss'
+alias cleanup='paru -Sc && paru -Rns $(paru -Qtdq)'
+alias devpod=devpod-cli
+{{- else if or (eq .chezmoi.osRelease.id "debian") (eq .chezmoi.osRelease.id "ubuntu") }}
 
-# Enable programmable completion
-if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
+# Debian/Ubuntu aliases
+alias update='sudo apt update && sudo apt upgrade'
+alias install='sudo apt install'
+alias remove='sudo apt remove'
+alias search='apt search'
+alias cleanup='sudo apt autoremove && sudo apt autoclean'
+{{- end }}
+
+#[alias]
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias cat=bat
+alias la='ls -la --color=auto'
+
+alias yay=paru
+alias p='paru -S'
+alias pu='paru -Syu'
+
+alias c=chezmoi
+alias v=nvim
+alias vim=nvim
+alias vi=nvim
+alias vf="fzf --bind 'enter:become(nvim {})'"
+
+#[eval]
+eval "$(starship init bash --print-full-init)"
+eval "$(fzf --bash)"
+
+#[source]
+source /usr/share/fzf/completion.bash
+source /usr/share/fzf/key-bindings.bash
+SSH_ENV="$HOME/.ssh/agent-environment"
+
+agent_load_env() {
+    test -f "$SSH_ENV" && . "$SSH_ENV" >| /dev/null
+}
+
+agent_start() {
+    (umask 077; ssh-agent >| "$SSH_ENV")
+    . "$SSH_ENV" >| /dev/null
+    ssh-add ~/.ssh/odouhou 2>/dev/null
+}
+
+agent_load_env
+
+# Controleer of agent draait en bereikbaar is
+if ! pgrep -u "$USER" ssh-agent >/dev/null; then
+    agent_start
+elif [ -z "$SSH_AUTH_SOCK" ] || ! ssh-add -l >/dev/null 2>&1; then
+    agent_start
 fi
 
-# Color prompt
-if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='\u@\h:\w\$ '
-fi
-
-# Aliases
-{{ template "shell_aliases" . }}
-
-# Functions
-{{ template "shell_functions" . }}
-
-# Editor
-export EDITOR={{ if eq .chezmoi.os "windows" }}"code"{{ else }}"nvim"{{ end }}
-export VISUAL="$EDITOR"
-
-# Mise activation
-if command -v mise &> /dev/null; then
-    eval "$(mise activate bash)"
-fi
-
-# Starship prompt (if available)
-if command -v starship &> /dev/null; then
-    eval "$(starship init bash)"
-fi
-
-# FZF configuration
-if command -v fzf &> /dev/null; then
-    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-    [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-fi
-
-{{ if eq .chezmoi.os "darwin" -}}
-# macOS-specific configuration
-{{ if eq .chezmoi.arch "arm64" -}}
-# Apple Silicon Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
-{{ else -}}
-# Intel Homebrew
-eval "$(/usr/local/bin/brew shellenv)"
-{{ end -}}
-{{ end -}}
-
-# Local customizations (not tracked by chezmoi)
-[ -f ~/.bashrc.local ] && source ~/.bashrc.local
-{{ end -}}
+export PATH="$HOME/.local/bin:$PATH"
