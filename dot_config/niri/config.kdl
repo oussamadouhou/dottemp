@@ -8,7 +8,7 @@ config-notification {
 // Outputs from existing configuration
 output "eDP-1" {
     mode "1920x1080@120.030"
-    scale 1.5 
+    scale 1 
     transform "normal"
     position x=2000 y=1440
 }
