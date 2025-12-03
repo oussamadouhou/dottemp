@@ -1,0 +1,44 @@
+{{- if ne .chezmoi.os "windows" -}}
+#!/usr/bin/env bash
+# run_once_before_01-install-mise.sh.tmpl
+
+set -euo pipefail
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+if command -v mise &> /dev/null; then
+    echo -e "${GREEN}mise is already installed${NC}"
+    mise --version
+    exit 0
+fi
+
+echo -e "${YELLOW}Installing mise...${NC}"
+
+{{ if eq .chezmoi.os "darwin" -}}
+# Install via Homebrew on macOS
+brew install mise
+{{ else -}}
+# Install via curl on Linux
+curl https://mise.run | sh
+
+# Add mise to PATH for this script
+export PATH="$HOME/.local/bin:$PATH"
+{{ end -}}
+
+# Verify installation
+if command -v mise &> /dev/null; then
+    echo -e "${GREEN}mise installed successfully!${NC}"
+    mise --version
+    
+    # Install global tools from mise config
+    if [ -f "$HOME/.config/mise/config.toml" ]; then
+        echo -e "${YELLOW}Installing global tools from config...${NC}"
+        mise install
+    fi
+else
+    echo -e "${RED}Failed to install mise${NC}"
+    exit 1
+fi
+{{ end -}}

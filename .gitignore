@@ -1,0 +1,30 @@
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+test/
+tmp/
+*.test
+
+# Local customizations
+*.local
+
+# Age private keys (NEVER commit these!)
+key.txt
+*.key
+
+# GPG keys (NEVER commit these!)
+*.asc.key
+secring.gpg
+
+# Logs
+*.log
+
+# OS files
+Thumbs.db
+desktop.ini
