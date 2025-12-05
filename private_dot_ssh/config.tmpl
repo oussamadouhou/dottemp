@@ -10,6 +10,7 @@ Host *
     ServerAliveInterval 60
     ServerAliveCountMax 3
     IdentityFile ~/.ssh/id_ed25519
+    ForwardAgent yes
 
 # GitHub
 Host github.com
@@ -25,6 +26,14 @@ Host gitlab.com
     IdentityFile ~/.ssh/id_ed25519
     PreferredAuthentications publickey
 
+Host vps-root
+    HostName 01.vps.cloud.flexinit.nl
+    Port 1986
+
+Host vps-flexinit
+    HostName 01.vps.cloud.flexinit.nl
+    Port 1986
+    User flexinit.nl_jrv78bb08ws
 {{ if not .personal }}
 # Work servers (example configuration)
 Host work-*

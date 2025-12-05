@@ -4,9 +4,7 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-. $HOME/.config/chezmoi/env
-export SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock
-{{- if eq .chezmoi.osRelease.id "arch" }}
+{{ if eq .chezmoi.osRelease.id "arch" }}
 
 # Arch aliases
 alias update='paru -Syu'
@@ -16,7 +14,7 @@ alias remove='paru -Rns'
 alias search='paru -Ss'
 alias cleanup='paru -Sc && paru -Rns $(paru -Qtdq)'
 alias devpod=devpod-cli
-{{- else if or (eq .chezmoi.osRelease.id "debian") (eq .chezmoi.osRelease.id "ubuntu") }}
+{{ else if or (eq .chezmoi.osRelease.id "debian") (eq .chezmoi.osRelease.id "ubuntu") }}
 
 # Debian/Ubuntu aliases
 alias update='sudo apt update && sudo apt upgrade'
@@ -45,12 +43,19 @@ alias vf="fzf --bind 'enter:become(nvim {})'"
 #[eval]
 eval "$(starship init bash --print-full-init)"
 eval "$(fzf --bash)"
+eval "$(bws completions)"
+eval "$(zoxide init bash)"
 
 #[source]
 source /usr/share/fzf/completion.bash
 source /usr/share/fzf/key-bindings.bash
 SSH_ENV="$HOME/.ssh/agent-environment"
 
+# Exports
+export PATH="$HOME/.local/bin:$PATH"
+export SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock
+
+# SSH Agents
 agent_load_env() {
     test -f "$SSH_ENV" && . "$SSH_ENV" >| /dev/null
 }
@@ -63,11 +68,22 @@ agent_start() {
 
 agent_load_env
 
-# Controleer of agent draait en bereikbaar is
 if ! pgrep -u "$USER" ssh-agent >/dev/null; then
     agent_start
 elif [ -z "$SSH_AUTH_SOCK" ] || ! ssh-add -l >/dev/null 2>&1; then
     agent_start
 fi
 
-export PATH="$HOME/.local/bin:$PATH"
+# Environment file
+if [ -f "$HOME/.config/.env/env" ]; then
+  echo "env file has been sourced"
+  source "$HOME/.config/.env/env"
+else
+  echo "No env file found"
+fi
+
+# Bash bles.sh
+if [ -f "/usr/share/blesh/ble.sh" ]; then
+    echo "blesh.sh has been sourced"
+    source /usr/share/blesh/ble.sh
+fi
